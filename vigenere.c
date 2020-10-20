@@ -16,81 +16,120 @@
 #include "vigenere.h"
 
 int main(int argc, char*argv[]) {
-
-  int textFreqArray[26] = {0};    //Number of times each letter occurs in text
-  int cipherFreqArray[26] = {0};  //Number of time each letter occurs in cipher
+  int mode = 0;                   // 0 = encode, 1 = decode
+  int inputFreqArray[26] = {0};    // Number of times each letter occurs in text
+  int outputFreqArray[26] = {0};  // Number of time each letter occurs in cipher
+  char * inputFile = NULL;        // File location to read
+  char * outputFile = NULL;       // File location to write results
   char * buffer = NULL;           //Buffer to hold text file input
   char * key = NULL;              //Key for Vigenere Cipher encryption
-  char * encryption = NULL;       //Text after encryption
-  char ** memManager[3] = {&buffer, &key, &encryption};
+  char * outputText = NULL;       //Text after encryption
+  char ** memManager[5] = {&buffer, &key, &outputText, &inputFile, &outputFile};
+ 
 
 
-  //Check arguments passed from command line
+  //Parse command line arguments
   switch(argc){
 
-    case 2:   //Run with file only or help
-      //If help, display info and exit
-      if(strcmp(argv[1], "--help") == 0){
-        help();
-        return 0;
-      }
-      break;
-
-    case 3:   //Run with file and key for encryption
-      //Capture key in dynamic array and ensure lower-case
-      key = (char*)malloc(sizeof(argv[2]));
-      assert(key);
-      strcpy(key, argv[2]);
-      for(int i=0; i<strlen(key); ++i){
-        if(isalpha(key[i]) == 0){
-          fprintf(stderr, "%s", "Key Format: Key string must be alphabetic only\n");
-          free(key);
-          key = NULL;
+    case 2:   // Help menu or text file only input
+      if(argv[1][0] == '-'){
+        if(strcmp(argv[1], "--help") == 0) {
+          help();
+          return 0;
+        }
+        else {
+          fprintf(stderr, "%s", "Invalid Number of Arguments: Use --help for usage information\n");
           return -1;
         }
-        key[i] = tolower(key[i]);
+      }
+      
+      inputFile = (char*)malloc(sizeof(argv[1]));
+      assert(inputFile);
+      strcpy(inputFile, argv[1]);
+      break;
+
+    case (4):   // Encode or decode a text file
+      if(strcmp(argv[1], "-e") == 0 || strcmp(argv[1], "-d") == 0) {
+        inputFile = (char*)malloc(sizeof(argv[2]));
+        assert(inputFile);
+        strcpy(inputFile, argv[2]);
+
+        key = (char*)malloc(sizeof(argv[3]));
+        assert(key);
+        strcpy(key, argv[3]);
+
+        if(argv[1][1] == 'e'){mode = 0;}
+        else if(argv[1][1] == 'd'){mode = 1;}
+
+        if(argc == 5){
+          outputFile = (char*)malloc(sizeof(argv[4]));
+          assert(outputFile);
+          strcpy(outputFile, argv[4]);
+        }
+      }
+      else {
+        fprintf(stderr, "%s", "Unkown Flag Found: Use --help for usage information");
+        return -1;
       }
       break;
 
+    case (5):
+      if(strcmp(argv[1], "-e") == 0 || strcmp(argv[1], "-d") == 0) {
+        inputFile = (char*)malloc(sizeof(argv[2]));
+        assert(inputFile);
+        strcpy(inputFile, argv[2]);
+
+        key = (char*)malloc(sizeof(argv[3]));
+        assert(key);
+        strcpy(key, argv[3]);
+
+        if(argv[1][1] == 'e'){mode = 0;}
+        else if(argv[1][1] == 'd'){mode = 1;}
+
+        outputFile = (char*)malloc(sizeof(argv[4]));
+        assert(outputFile);
+        strcpy(outputFile, argv[4]);
+      }
+
     default:
-      fprintf(stderr, "%s","Incorrect Number of Arguments: use --help for usage\n");
+      fprintf(stderr, "%s", "Invalid Number of Arguments: Use --help for usage information\n");
       return -1;
   }
 
 
+
   //Read file into buffer, exit on failure
-  if(readFile(argv[1], &buffer) == -1){return -1;};
+  if(readFile(inputFile, &buffer) == -1){return -1;};
 
   //Print original text scanned
   printf("ORIGINAL TEXT:\n%s\n", buffer);
 
   //Build frequency table from original text
-  buildFreqArray(textFreqArray, buffer);
+  buildFreqArray(inputFreqArray, buffer);
 
   //Display the frequency table stored in freqArray
-  printTable(textFreqArray);
+  printTable(inputFreqArray);
 
 
-
-  //If encryption option is used
+  //If encryption/decryption option is used
   if(key){
-    //Encrypt text in buffer
-    vigCipher(&encryption, key, buffer);
+    //Encrypt/decrypt text in buffer
+    vigCipher(&outputText, key, buffer, mode);
 
-    //Print encrypted text
+    //Print output text
     printf("KEY: %s\n\n", key);
-    printf("ENCRYPTED TEXT:\n%s\n", encryption);
+    printf("ENCRYPTED TEXT:\n%s\n", outputText);
   
     //Build frequency table from encryption
-    buildFreqArray(cipherFreqArray, encryption);
+    buildFreqArray(outputFreqArray, outputText);
 
     //Display the encrypted frequency table
-    printTable(cipherFreqArray);
+    printTable(outputFreqArray);
     
   }
 
   //Release memory
-  for(int i=0; i<3; ++i){
+  for(int i=0; i<5; ++i){
     if(*memManager[i]){
       free(*memManager[i]);
       *memManager[i] = NULL;

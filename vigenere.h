@@ -101,7 +101,7 @@ void buildFreqArray(int * freqArray, const char * text){
         - Char** pointer, NULL char* pointer passed by reference
         - Char* pointer to character array to be used as key
         - Char* pointer to character array to be encrypted */
-void vigCipher(char ** encryption, const char * key, const char * text){
+void vigCipher(char ** encryption, const char * key, const char * text, int mode){
   size_t textLen = strlen(text);
   size_t keyLen = strlen(key);
   char * temp = (char*)calloc(textLen+1, sizeof(char));
@@ -146,15 +146,17 @@ void printTable(const int * freqArray){
 
 // Displays the help information when the --help flag is used from the command line
 void help(){
-  printf("\n* The default behavior of this program reads a text file and prints"
-         " the contents\n* of the file followed by a character frequency table." 
-         " Addition of a key string will\n* run the program with a Vigenere Cipher"
-         ", display the original text and frequency\n* table, then display the "
-         "encrypted text and it's frequency table.\n\nUSAGE: ./vigenere [Text File]"
-         "\t\tPrint the text and character frequency table\n       ./vigenere [Text "
-         "File] [Key]\tEncrypts text with Vigenere Cipher based on provid"
-         "ed key \n       ./vigenere --help\t\tShow usage and help info\n\nARGUMENT"
-         "S:\n       [Text File]\tValid text file location for program to read"
-         "\n       [Key]\t\tLower-case alphabetic string to be used as a key in"
-         " the Vigenere Cipher\n\n");
+  printf("\n* The default behavior of this program reads a text file and prints the contents\n"
+         "* of the file followed by a character frequency table. Addition of a key string will\n"
+         "* run the program with a Vigenere Cipher, display the original text and frequency\n"
+         "* table, then display the encrypted text and it's frequency table.\n\n"
+         "USAGE: ./vigenere [Text]\t\t\t\tPrint the text and character frequency table\n"
+         "       ./vigenere [Mode] [Text] [Key]\t\tEncrypts or decrypts text with Vigenere Cipher based on provided key\n"
+         "       ./vigenere [Mode] [Text] [Key] [Output]\tEncrypts or decrypts text with key and writes to user specified file\n"
+         "       ./vigenere --help\t\t\t\tShow usage and help info\n\n"
+         "ARGUMENTS:\n"
+         "      [Text File]\tValid text file location for program to read\n"
+         "      [Mode]\t\t-e for encoding input, -d for decoding input\n"
+         "      [Key]\t\tLower-case alphabetic string to be used as a key in the Vigenere Cipher\n"
+         "      [Output]\t\tName of file to output results of encryption or decryption to. Overwrites if file exists.\n\n");
 }
