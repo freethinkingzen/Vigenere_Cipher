@@ -60,12 +60,8 @@ int main(int argc, char*argv[]) {
 
         if(argv[1][1] == 'e'){mode = 0;}
         else if(argv[1][1] == 'd'){mode = 1;}
+        break;
 
-        if(argc == 5){
-          outputFile = (char*)malloc(sizeof(argv[4]));
-          assert(outputFile);
-          strcpy(outputFile, argv[4]);
-        }
       }
       else {
         fprintf(stderr, "%s", "Unkown Flag Found: Use --help for usage information");
@@ -90,6 +86,11 @@ int main(int argc, char*argv[]) {
         assert(outputFile);
         strcpy(outputFile, argv[4]);
       }
+      else {
+        fprintf(stderr, "%s", "Unkown Flag Found: Use --help for usage information");
+        return -1;
+      }
+      break;
 
     default:
       fprintf(stderr, "%s", "Invalid Number of Arguments: Use --help for usage information\n");
@@ -116,16 +117,24 @@ int main(int argc, char*argv[]) {
     //Encrypt/decrypt text in buffer
     vigCipher(&outputText, key, buffer, mode);
 
-    //Print output text
-    printf("KEY: %s\n\n", key);
-    printf("ENCRYPTED TEXT:\n%s\n", outputText);
-  
-    //Build frequency table from encryption
-    buildFreqArray(outputFreqArray, outputText);
+    //If encryption produces text ... 
+    if(outputText){
+      //Print output text
+      printf("KEY: %s\n\n", key);
+      printf("ENCRYPTED TEXT:\n%s\n", outputText);
 
-    //Display the encrypted frequency table
-    printTable(outputFreqArray);
-    
+      //Build frequency table from encryption
+      buildFreqArray(outputFreqArray, outputText);
+
+      //Display the encrypted frequency table
+      printTable(outputFreqArray);
+
+
+      //Optionally output to provided file name
+      if(outputFile){
+        writeFile(outputFile, outputText);
+      }
+    }
   }
 
   //Release memory

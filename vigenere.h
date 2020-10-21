@@ -27,7 +27,6 @@ const size_t BUFFER_START_SIZE = 1000;  // Initial size of read-in buffer
  *    - -1 if file is not opened
  *    - 0 on success
  * Aborts program if calloc() or realloc() fail */
-
 int readFile(const char * filename, char ** buffer){
   char * tempbuffer = NULL;             // Temp buffer while reading file
   int buffLen = 0;                      // Keep track of text length
@@ -82,6 +81,25 @@ int readFile(const char * filename, char ** buffer){
 
 
 
+/* Writes string to file
+ * Arguments:
+ *    - filename to write to or overwrite if it exists
+ *    - string or array to write to file
+ * No return but will display error if write fails */
+void writeFile(const char * filename, const char * text){
+
+  FILE * towrite;
+  towrite = fopen(filename, "w");
+  if(!towrite){
+    perror("ERROR: Could not write to file");
+  }
+
+  fputs(text, towrite);
+  fclose(towrite);
+}
+
+
+
 /* Fills the frequency array passed as argument
  * Arguments:
  *      - Int* pointer to frequency array
@@ -107,21 +125,26 @@ void vigCipher(char ** encryption, const char * key, const char * text, int mode
   char * temp = (char*)calloc(textLen+1, sizeof(char));
   assert(temp);
 
-  for(int i=0; i<textLen; ++i){
-    if(text[i] >= 'a' && text[i] <= 'z'){
-      if((text[i]-'a') + (key[i%keyLen]-'a') >= 26){
-        temp[i] = (text[i]-'a') + key[i%keyLen] - 26;
+  if(mode == 0){
+    for(int i=0; i<textLen; ++i){
+      if(text[i] >= 'a' && text[i] <= 'z'){
+        if((text[i]-'a') + (key[i%keyLen]-'a') >= 26){
+          temp[i] = (text[i]-'a') + key[i%keyLen] - 26;
+        } 
+        else {
+          temp[i] = (text[i] - 'a') + key[i%keyLen];
+        }
       }
       else {
-        temp[i] = (text[i] - 'a') + key[i%keyLen];
+        temp[i] = text[i];
       }
     }
-    else {
-      temp[i] = text[i];
-    }
+    *encryption = temp;
+    temp = NULL;
   }
-  *encryption = temp;
-  temp = NULL;
+  else {
+    printf("DECODE NOT BUILT YET ... COMING SOON ...\n");
+  }
 }
 
 
